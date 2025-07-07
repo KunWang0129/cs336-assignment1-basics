@@ -5,7 +5,7 @@ from typing import Iterable, Iterator
 from collections import defaultdict
 from multiprocessing import Process, Queue
 import time
-import tdqm
+import tqdm
 
 def find_chunk_boundaries(
     file: BinaryIO, 
@@ -328,16 +328,16 @@ class BPETokenizer:
 
 
 def main():
-    file_path = "./data/corpus.en"
+    file_path = 'tests/fixtures/tinystories_sample.txt'
     vocab_size = 500
-    # special_tokens = ["<|endoftext|>"]
-    special_tokens = ["<|endoftext|>", "<|endoftext|><|endoftext|>"]
+    special_tokens = ["<|endoftext|>"]
+    # special_tokens = ["<|endoftext|>", "<|endoftext|><|endoftext|>"]
 
     vocab, merges = train_bpe(file_path, vocab_size, special_tokens)
     tokenizer = BPETokenizer(vocab, merges, special_tokens)
     # print(merges)
 
-    test_string = "Hello, how <|endoftext|><|endoftext|> are you?<|endoftext|>"
+    test_string = "Hello, world! <|endoftext|> This is a test. <|endoftext|> Let's see how it works.<|endoftext|>"
     encoded = tokenizer.encode(test_string)
     print("encoded:",encoded)
     decoded = [tokenizer.decode([x]) for x in encoded]
