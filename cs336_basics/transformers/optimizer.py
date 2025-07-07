@@ -19,7 +19,7 @@ def get_cosine_lr(
     # Else, we use cosine decay down to min learning rate.
     decay_ratio = (it - warmup_iters) / (cosine_cycle_iters - warmup_iters)
     assert 0 <= decay_ratio <= 1
-    coeff = 0.5 * (1.0 + math.cos(math.pi * decap y_ratio))
+    coeff = 0.5 * (1.0 + math.cos(math.pi * decay_ratio))
     return min_learning_rate + coeff * (max_learning_rate - min_learning_rate)
 
 class AdamW(Optimizer):
