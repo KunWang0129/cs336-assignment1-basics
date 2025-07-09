@@ -7,26 +7,38 @@ from multiprocessing import Process, Queue
 import time
 import tqdm
 import sys
+import pickle
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from cs336_basics.bpe_token.trainer import pretokenize, train_bpe
 
 
 class BPETokenizer:
-    def __init__(self, vocab: dict[int, bytes], 
-                 merges: list[tuple[bytes, bytes]], 
+    def __init__(self, vocab: dict[int, bytes]| None = None, 
+                 merges: list[tuple[bytes, bytes]]| None = None, 
                  special_tokens: list[str]| None = None
 ):
         self.vocab = vocab
         self.merges = merges
         self.special_tokens = special_tokens or []
+        self.vocab_to_id = {}
+        if vocab:
+            self.vocab_to_id  = {v: k for k, v in self.vocab.items()}
 
-    def from_files(cls, vocab_filepath: str,
+    def from_files(self, vocab_filepath: str,
                    merges_filepath: str,
                    special_tokens: list[str] | None = None
     ):
-        raise NotImplementedError
-    
+        with open(vocab_filepath, 'rb') as f:
+            vocab = pickle.load(f)
+        with open(merges_filepath, 'rb') as f:
+            merges = pickle.load(f)
+        self.vocab = vocab
+        self.merges = merges
+        self.special_tokens = special_tokens
+        self.vocab_to_id  = {v: k for k, v in self.vocab.items()}
+
     def encode(self, text:str) -> list[int]:
         """
         Encode an input text into a sequence of token IDs.
@@ -36,7 +48,7 @@ class BPETokenizer:
         pretokens = [] # type: list[list[int]]
 
         # reverse vocab for byte to list[int]
-        vocab_reversed = {v: k for k, v in self.vocab.items()}
+        vocab_reversed = self.vocab_to_id
 
         # Convert pretokens fro bytes to list[int] by vocab
         for i, pretoken in enumerate(byte_pretokens):

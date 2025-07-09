@@ -28,11 +28,14 @@ class TransformerBlock(nn.Module):
         self.num_heads = num_heads
         self.d_ff = d_ff
         self.rope_theta = rope_theta
+        device = "cpu"
+        if torch.cuda.is_available():
+            device = "cuda"
 
         self.attention = MultiHeadSelfAttention(d_model, num_heads, theta=rope_theta, max_seq_len=max_seq_len)
         self.feed_forward = PositionwiseFeedForward(d_model, d_ff)
-        self.norm1 = RMSNorm(d_model)
-        self.norm2 = RMSNorm(d_model)
+        self.norm1 = RMSNorm(d_model=d_model, device = device)
+        self.norm2 = RMSNorm(d_model=d_model, device = device)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
